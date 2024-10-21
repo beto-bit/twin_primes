@@ -1,7 +1,8 @@
 use twin_primes::load_primes;
 
 fn main() {
-    let primes = load_primes("primes.num").unwrap();
+    twin_primes::generate_and_append_primes("smol.num", 200).unwrap();
 
-    println!("{:?}", primes.len());
+    let primes = load_primes("smol.num").unwrap();
+    println!("{:?}", primes.last());
 }

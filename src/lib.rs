@@ -30,12 +30,33 @@ pub fn generate_and_store_primes(path: impl AsRef<Path>, top: u32) -> Result<(),
     Ok(())
 }
 
+pub fn generate_and_append_primes(path: impl AsRef<Path>, top: u32) -> Result<(), &'static str> {
+    let file = OpenOptions::new()
+        .read(true)
+        .append(true)
+        .open(path)
+        .map_err(|_| "Error opening file")?;
+
+    let last_prime_bytes = BufReader::new(file)
+        .bytes()
+        .array_chunks::<4>()
+        .last()
+        .ok_or("No elements found")?
+        .map(|byte| byte.expect("Error reading byte"));
+
+    let last_prime_found = u32::decode_fixed(&last_prime_bytes).ok_or("Error decoding bytes")?;
+
+    println!("{last_prime_found}");
+
+    Ok(())
+}
+
 pub fn load_primes(path: impl AsRef<Path>) -> Result<Vec<u32>, &'static str> {
     let file = File::open(path).map_err(|_| "Error opening file")?;
     let file = BufReader::new(file);
 
     file.bytes()
-        .map(|bytes| bytes.expect("Error reading byte"))
+        .map(|byte| byte.expect("Error reading byte"))
         .array_chunks::<4>()
         .map(|buff| u32::decode_fixed(&buff).ok_or("Error decoding bytes"))
         .collect()
