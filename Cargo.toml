@@ -1,0 +1,8 @@
+[package]
+name = "twin_primes"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+integer-encoding = "4.0.2"
+primality-test = "0.3.0"
