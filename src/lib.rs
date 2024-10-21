@@ -4,6 +4,7 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::path::Path;
 
+use std::io::{Seek, SeekFrom};
 use std::io::{BufReader, BufWriter, Read, Write};
 
 use integer_encoding::FixedInt;
@@ -37,12 +38,14 @@ pub fn generate_and_append_primes(path: impl AsRef<Path>, top: u32) -> Result<()
         .open(path)
         .map_err(|_| "Error opening file")?;
 
-    let last_prime_bytes = BufReader::new(file)
-        .bytes()
-        .array_chunks::<4>()
-        .last()
-        .ok_or("No elements found")?
-        .map(|byte| byte.expect("Error reading byte"));
+    let mut br = BufReader::new(file);
+
+    // Advance near the end
+    br.seek(SeekFrom::End(-4)).map_err(|_| "Error seeking near the EOF")?;
+
+    // Read the bytes
+    let mut last_prime_bytes = [0u8; 4];
+    br.read(&mut last_prime_bytes).map_err(|_| "Error reading bytes")?;
 
     let last_prime_found = u32::decode_fixed(&last_prime_bytes).ok_or("Error decoding bytes")?;
 
