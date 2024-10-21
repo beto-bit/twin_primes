@@ -9,7 +9,7 @@ use std::io::{BufReader, BufWriter, Read, Write};
 use integer_encoding::FixedInt;
 use primality_test::IsPrime;
 
-pub fn generate_and_store_primes(path: impl AsRef<Path>) -> Result<(), &'static str> {
+pub fn generate_and_store_primes(path: impl AsRef<Path>, top: u32) -> Result<(), &'static str> {
     let file = OpenOptions::new()
         .append(true)
         .create(true)
@@ -22,8 +22,8 @@ pub fn generate_and_store_primes(path: impl AsRef<Path>) -> Result<(), &'static 
         file.write(&prime.encode_fixed_light())
             .map_err(|_| "Error writing to file")?;
 
-        if prime > 1_000_000_000 {
-            return Err("ENOUGH");
+        if prime > top {
+            break;
         }
     }
 
